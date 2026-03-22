@@ -21,6 +21,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
+        // TODO: Ver la forma de como asignar el rol
 
         $token = $user->createToken(
             name: 'auth_token',
