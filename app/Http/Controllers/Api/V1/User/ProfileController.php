@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Api\V1\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\ApiResponse;
+use App\Http\Requests\Api\V1\User\StoreUserRequest;
+use App\Http\Requests\Api\V1\User\UpdateProfileRequest;
+use App\Http\Requests\Api\V1\User\UpdateUserRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
-    public function show(Request $request): JsonResponse
+    public function show(UpdateProfileRequest $request): JsonResponse
     {
         return ApiResponse::success(
             data: new UserResource($request->user()),
@@ -20,17 +21,11 @@ class ProfileController extends Controller
         );
     }
 
-    public function update(Request $request): JsonResponse
+    public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
 
-        $validated = $request->validate([
-            'name'   => ['sometimes', 'string', 'max:255'],
-            'email'  => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'estado' => ['sometimes', 'boolean'],
-        ]);
-
-        $user->update($validated);
+        $user->update($request->validated());
 
         return ApiResponse::success(
             data: new UserResource($user->fresh()),
@@ -66,16 +61,9 @@ class ProfileController extends Controller
         );
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        // dd('el store');
-        $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
-            'role'     => ['required', 'string', 'exists:roles,name'],
-            'estado'   => ['sometimes', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'name'     => $validated['name'],
@@ -93,17 +81,11 @@ class ProfileController extends Controller
         );
     }
 
-    public function updateById(Request $request, int $id): JsonResponse
+    public function updateById(UpdateUserRequest $request, int $id): JsonResponse
     {
         $user = User::findOrFail($id);
 
-        $validated = $request->validate([
-            'name'     => ['sometimes', 'string', 'max:255'],
-            'email'    => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['sometimes', 'string', 'min:8'],
-            'role'     => ['sometimes', 'string', 'exists:roles,name'],
-            'estado'   => ['sometimes', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $user->update(collect($validated)->except('role')->toArray());
 
