@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RefreshTokenController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
+use App\Http\Controllers\Api\V1\Cliente\ClienteController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -40,6 +41,15 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::post('/',       [RoleController::class, 'store'])->name('roles.store');
         Route::get('{id}',     [RoleController::class, 'show'])->name('roles.show');
         Route::put('{id}',     [RoleController::class, 'update'])->name('roles.update');
-        Route::delete('{id}',  [RoleController::class, 'destroy'])->name('roles.destroy'); 
+        Route::delete('{id}',  [RoleController::class, 'destroy'])->name('roles.destroy');
+    });
+
+    Route::prefix('clientes')->group(function () {
+        Route::get('/',        [ClienteController::class, 'index'])->name('clientes.index');
+        Route::get('/all',     [ClienteController::class, 'indexAll'])->name('clientes.indexAll');
+        Route::post('/',       [ClienteController::class, 'store'])->name('clientes.store');
+        Route::get('{id}',     [ClienteController::class, 'show'])->name('clientes.show');
+        Route::put('{id}',     [ClienteController::class, 'update'])->name('clientes.update');
+        Route::delete('{id}',  [ClienteController::class, 'destroy'])->name('clientes.destroy');
     });
 });
