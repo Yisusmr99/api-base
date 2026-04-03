@@ -25,7 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
         // Registrar alias de middleware de Spatie
         $middleware->alias([
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,
