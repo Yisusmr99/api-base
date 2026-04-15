@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Auth\RefreshTokenController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\Cliente\ClienteController;
+use App\Http\Controllers\Api\V1\Cuenta\CuentaController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -51,5 +52,14 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::get('{id}',     [ClienteController::class, 'show'])->name('clientes.show');
         Route::put('{id}',     [ClienteController::class, 'update'])->name('clientes.update');
         Route::delete('{id}',  [ClienteController::class, 'destroy'])->name('clientes.destroy');
+    });
+
+    Route::prefix('cuentas')->group(function () {
+        Route::get('/',        [CuentaController::class, 'index'])->name('cuentas.index');
+        Route::get('/all',     [CuentaController::class, 'indexAll'])->name('cuentas.indexAll');
+        Route::post('/',       [CuentaController::class, 'store'])->name('cuentas.store');
+        Route::get('{id}',     [CuentaController::class, 'show'])->name('cuentas.show');
+        Route::put('{id}',     [CuentaController::class, 'update'])->name('cuentas.update');
+        Route::delete('{id}',  [CuentaController::class, 'destroy'])->name('cuentas.destroy');
     });
 });

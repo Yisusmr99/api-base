@@ -18,4 +18,9 @@ class Cliente extends Model
             'estado' => 'boolean',
         ];
     }
+
+    public function cuentas()
+    {
+        return $this->hasMany(Cuentas::class, 'id_cliente');
+    }
 }
