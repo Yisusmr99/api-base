@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\Cliente\ClienteController;
 use App\Http\Controllers\Api\V1\Cuenta\CuentaController;
+use App\Http\Controllers\Api\V1\Transaccion\TransaccionController;
+use App\Http\Controllers\Api\V1\TransferenciaExterna\TransferenciaExternaController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -61,5 +63,20 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::get('{id}',     [CuentaController::class, 'show'])->name('cuentas.show');
         Route::put('{id}',     [CuentaController::class, 'update'])->name('cuentas.update');
         Route::delete('{id}',  [CuentaController::class, 'destroy'])->name('cuentas.destroy');
+        Route::get('/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])->name('cuentas.search');
+    });
+
+    Route::prefix('transacciones')->group(function () {
+        Route::get('/',        [TransaccionController::class, 'index'])->name('transacciones.index');
+        Route::get('/all',     [TransaccionController::class, 'indexAll'])->name('transacciones.indexAll');
+        Route::post('/',       [TransaccionController::class, 'store'])->name('transacciones.store');
+        Route::get('{id}',     [TransaccionController::class, 'show'])->name('transacciones.show');
+    });
+
+    Route::prefix('transferencias-externas')->group(function () {
+        Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
+        Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
+        Route::post('/',       [TransferenciaExternaController::class, 'store'])->name('transferencias-externas.store');
+        Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
     });
 });
