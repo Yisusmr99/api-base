@@ -24,11 +24,7 @@ class UpdateCuentaRequest extends FormRequest
         return [
             'id_cliente' => ['sometimes', 'integer', 'exists:clientes,id'],
             'numero_cuenta' => ['sometimes', 'string', 'max:255', Rule::unique('cuentas', 'numero_cuenta')->ignore($id)],
-            'saldo' => ['sometimes', 'numeric', 'min:0'],
-            'saldo_disponible' => ['sometimes', 'numeric', 'min:0'],
             'tipo_cuenta' => ['sometimes', Rule::enum(TipoCuenta::class)],
-            'fecha_apertura' => ['sometimes', 'nullable', 'date'],
-            'fecha_cierre' => ['sometimes', 'nullable', 'date'],
             'moneda' => ['sometimes', Rule::enum(Moneda::class)],
             'estado' => ['sometimes', 'boolean'],
         ];

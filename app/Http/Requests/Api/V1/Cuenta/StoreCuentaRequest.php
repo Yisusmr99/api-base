@@ -22,23 +22,16 @@ class StoreCuentaRequest extends FormRequest
         return [
             'id_cliente' => ['required', 'integer', 'exists:clientes,id'],
             'numero_cuenta' => ['required', 'string', 'max:255', 'unique:cuentas,numero_cuenta'],
-            'saldo' => ['sometimes', 'numeric', 'min:0'],
-            'saldo_disponible' => ['sometimes', 'numeric', 'min:0'],
+            'saldo_disponible' => ['required', 'numeric', 'gt:0'],
             'tipo_cuenta' => ['required', Rule::enum(TipoCuenta::class)],
-            'fecha_apertura' => ['nullable', 'date'],
-            'fecha_cierre' => ['nullable', 'date'],
             'moneda' => ['sometimes', Rule::enum(Moneda::class)],
-            'estado' => ['sometimes', 'boolean'],
         ];
     }
 
     protected function passedValidation(): void
     {
         $this->mergeIfMissing([
-            'saldo' => 0,
-            'saldo_disponible' => 0,
             'moneda' => Moneda::Quetzal->value,
-            'estado' => true,
         ]);
     }
 

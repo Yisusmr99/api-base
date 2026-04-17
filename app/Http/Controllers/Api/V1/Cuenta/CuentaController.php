@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Cuenta;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\ApiResponse;
+use App\Http\Helpers\DateHelper;
 use App\Http\Requests\Api\V1\Cuenta\StoreCuentaRequest;
 use App\Http\Requests\Api\V1\Cuenta\UpdateCuentaRequest;
 use App\Http\Resources\Api\V1\CuentaResource;
@@ -52,7 +53,13 @@ class CuentaController extends Controller
 
     public function store(StoreCuentaRequest $request): JsonResponse
     {
-        $cuenta = Cuentas::create($request->validated());
+        $validated = $request->validated();
+
+        $cuenta = Cuentas::create(array_merge($validated, [
+            'saldo' => $validated['saldo_disponible'],
+            'fecha_apertura' => DateHelper::now(),
+            'estado' => true,
+        ]));
 
         $cuenta->load('cliente');
 
@@ -79,8 +86,17 @@ class CuentaController extends Controller
     public function destroy(int $id): JsonResponse
     {
         $cuenta = Cuentas::findOrFail($id);
-        $cuenta->delete();
 
-        return ApiResponse::success(message: 'Cuenta eliminada correctamente.');
+        $cuenta->update([
+            'estado' => false,
+            'fecha_cierre' => DateHelper::now(),
+        ]);
+
+        $cuenta->load('cliente');
+
+        return ApiResponse::success(
+            data: new CuentaResource($cuenta),
+            message: 'Cuenta cerrada correctamente.'
+        );
     }
 }
