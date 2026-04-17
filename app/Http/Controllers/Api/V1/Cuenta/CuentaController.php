@@ -40,6 +40,26 @@ class CuentaController extends Controller
         );
     }
 
+    public function searchAccount(int $numero_cuenta): JsonResponse
+    {
+        try {
+            
+            $cuenta = Cuentas::where('numero_cuenta', $numero_cuenta)->first();
+            $cuenta?->load('cliente');
+            if (!$cuenta) {
+                return ApiResponse::error(message: 'Cuenta no encontrada.', status: 404);
+            }
+
+            return ApiResponse::success(
+                data: new CuentaResource($cuenta),
+                message: 'Cuenta encontrada correctamente.'
+            );
+
+        } catch (\Throwable $th) {
+            return ApiResponse::error(message: 'Error al buscar la cuenta.', status: 500);
+        }
+    }
+
     public function show(int $id): JsonResponse
     {
         $cuenta = Cuentas::with('cliente')->findOrFail($id);
