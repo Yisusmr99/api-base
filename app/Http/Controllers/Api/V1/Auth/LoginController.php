@@ -13,7 +13,67 @@ use App\Http\Helpers\ApiResponse;
 class LoginController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * @OA\Post(
+     *     path="/auth/login",
+     *     summary="Iniciar sesión",
+     *     description="Autentica al usuario con email y contraseña. Retorna un token Sanctum para usar en endpoints protegidos.",
+     *     operationId="authLogin",
+     *     tags={"Auth"},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email",    type="string", format="email",    example="admin@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login exitoso.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=true),
+     *             @OA\Property(property="message", type="string",  example="Login exitoso."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id",          type="integer", example=1),
+     *                     @OA\Property(property="name",        type="string",  example="Admin"),
+     *                     @OA\Property(property="email",       type="string",  example="admin@example.com"),
+     *                     @OA\Property(property="estado",      type="boolean", example=true),
+     *                     @OA\Property(property="roles",       type="object"),
+     *                     @OA\Property(property="permissions", type="array", @OA\Items(type="string")),
+     *                     @OA\Property(property="created_at",  type="string", format="date-time"),
+     *                     @OA\Property(property="updated_at",  type="string", format="date-time")
+     *                 ),
+     *                 @OA\Property(property="token", type="string", example="1|abc123xyz...")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciales incorrectas.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=false),
+     *             @OA\Property(property="message", type="string",  example="Credenciales incorrectas.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=false),
+     *             @OA\Property(property="message", type="string",  example="Error de validación."),
+     *             @OA\Property(property="errors",  type="object")
+     *         )
+     *     )
+     * )
      */
     public function __invoke(LoginRequest $request): JsonResponse
     {

@@ -41,18 +41,81 @@ class CuentaController extends Controller
         );
     }
 
+    /**
+     * @OA\Get(
+     *     path="/cuentas/search/{numero_cuenta}",
+     *     summary="Buscar cuenta por número",
+     *     description="Retorna los datos de una cuenta dado su número. Requiere token Sanctum y el permiso `cuentas.search` (roles: admin, banco).",
+     *     operationId="searchCuenta",
+     *     tags={"Cuentas"},
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="numero_cuenta",
+     *         in="path",
+     *         required=true,
+     *         description="Número de cuenta a buscar.",
+     *         @OA\Schema(type="integer", example=100000001)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cuenta encontrada correctamente.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=true),
+     *             @OA\Property(property="message", type="string",  example="Cuenta encontrada correctamente."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id",               type="integer", example=1),
+     *                 @OA\Property(property="id_cliente",       type="integer", example=5),
+     *                 @OA\Property(property="numero_cuenta",    type="integer", example=100000001),
+     *                 @OA\Property(property="saldo",            type="number",  format="float", example=1500.00),
+     *                 @OA\Property(property="saldo_disponible", type="number",  format="float", example=1500.00),
+     *                 @OA\Property(property="moneda",           type="string",  example="Q"),
+     *                 @OA\Property(property="estado",           type="string",  example="activa"),
+     *                 @OA\Property(property="cliente",          type="object")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado.",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Unauthenticated."))
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="Sin permiso.",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="User does not have the right permissions."))
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Cuenta no encontrada.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=false),
+     *             @OA\Property(property="message", type="string",  example="Cuenta no encontrada.")
+     *         )
+     *     )
+     * )
+     */
     public function searchAccount(int $numero_cuenta): JsonResponse
     {
         try {
+
+            $cuenta = Cuentas::where('numero_cuenta', $numero_cuenta)->where('estado', true)->first();
             
-            $cuenta = Cuentas::where('numero_cuenta', $numero_cuenta)->first();
-            $cuenta?->load('cliente');
             if (!$cuenta) {
                 return ApiResponse::error(message: 'Cuenta no encontrada.', status: 404);
             }
 
+            $cuenta->load('cliente');
+            $cuenta->makeHidden(['saldo', 'saldo_disponible']);
+
             return ApiResponse::success(
-                data: new CuentaResource($cuenta),
+                data: CuentaResource::make($cuenta)->hide(['saldo', 'saldo_disponible']),
                 message: 'Cuenta encontrada correctamente.'
             );
 
