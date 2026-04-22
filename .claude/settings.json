@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(curl -s \"https://repo.packagist.org/packages/darkaonline/l5-swagger.json\")",
+      "Bash(python3 -c ' *)",
+      "Bash(composer require *)",
+      "Bash(composer show *)",
+      "Bash(php -r 'require '\\\\''vendor/autoload.php'\\\\''; $a = new \\\\OpenApi\\\\Annotations\\\\Info\\(['\\\\''title'\\\\''=>'\\\\''test'\\\\'','\\\\''version'\\\\''=>'\\\\''1.0'\\\\'']\\); echo get_class\\($a\\);')",
+      "Bash(php -r ' *)"
     ]
   }
 }

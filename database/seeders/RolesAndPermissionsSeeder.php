@@ -23,6 +23,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.show',
             'users.update',
             'users.delete',
+            'transferencias-externas.store',
+            'cuentas.search',
         ];
 
         foreach ($permissions as $permission) {
@@ -39,5 +41,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.show',
             'users.update',
         ]);
+
+        // Crear rol banco con permiso para registrar transferencias externas
+        $banco = Role::firstOrCreate(['name' => 'banco']);
+        $banco->syncPermissions(['transferencias-externas.store', 'cuentas.search']);
     }
 }

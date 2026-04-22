@@ -63,7 +63,6 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::get('{id}',     [CuentaController::class, 'show'])->name('cuentas.show');
         Route::put('{id}',     [CuentaController::class, 'update'])->name('cuentas.update');
         Route::delete('{id}',  [CuentaController::class, 'destroy'])->name('cuentas.destroy');
-        Route::get('/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])->name('cuentas.search');
     });
 
     Route::prefix('transacciones')->group(function () {
@@ -76,7 +75,16 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
     Route::prefix('transferencias-externas')->group(function () {
         Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
         Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
-        Route::post('/',       [TransferenciaExternaController::class, 'store'])->name('transferencias-externas.store');
         Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
     });
 });
+
+// Cuentas search — accesible por rol banco y admin (via permiso)
+Route::middleware(['auth:sanctum', 'throttle:api', 'permission:cuentas.search'])
+    ->get('/cuentas/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])
+    ->name('cuentas.search');
+
+// Transferencias externas POST — accesible por rol banco y admin (via permiso)
+Route::middleware(['auth:sanctum', 'throttle:api', 'permission:transferencias-externas.store'])
+    ->post('/transferencias-externas', [TransferenciaExternaController::class, 'store'])
+    ->name('transferencias-externas.store');
