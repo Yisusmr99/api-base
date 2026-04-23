@@ -17,6 +17,7 @@ use App\Models\AsignacionTicket;
 use App\Models\HistorialTicket;
 use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
@@ -71,7 +72,12 @@ class TicketController extends Controller
             $validated = $request->validated();
             $userId = (int) $request->user()->id;
 
+            $lastTicket = Ticket::withTrashed()->orderByDesc('id_ticket')->first();
+            $nextNumber = $lastTicket ? $lastTicket->id_ticket + 1 : 1;
+            $codigoTicket = 'DB-' . $nextNumber;
+
             $ticket = Ticket::create(array_merge($validated, [
+                'codigo_ticket' => $codigoTicket,
                 'creado_por' => $validated['creado_por'] ?? $userId,
             ]));
 
@@ -324,6 +330,70 @@ class TicketController extends Controller
         return ApiResponse::success(
             data: new TicketResource($ticket->fresh()),
             message: 'Ticket cerrado correctamente.'
+        );
+    }
+
+    public function getByCliente(int $clienteId): JsonResponse
+    {
+        $tickets = Ticket::with(['cliente', 'creador'])
+            ->withCount(['asignaciones', 'historiales'])
+            ->where('id_cliente', $clienteId)
+            ->orderByDesc('fecha_creacion')
+            ->get();
+
+        return ApiResponse::success(
+            data: TicketResource::collection($tickets),
+            message: 'Historial de tickets del cliente obtenido correctamente.'
+        );
+    }
+
+    public function filter(Request $request): JsonResponse
+    {
+        $query = Ticket::with(['cliente', 'creador'])
+            ->withCount(['asignaciones', 'historiales']);
+
+        if ($request->filled('id_estado_ticket')) {
+            $query->where('id_estado_ticket', $request->input('id_estado_ticket'));
+        }
+
+        if ($request->filled('canal_origen')) {
+            $query->where('canal_origen', $request->input('canal_origen'));
+        }
+
+        if ($request->filled('id_cliente')) {
+            $query->where('id_cliente', $request->input('id_cliente'));
+        }
+
+        if ($request->filled('id_tipo_ticket')) {
+            $query->where('id_tipo_ticket', $request->input('id_tipo_ticket'));
+        }
+
+        if ($request->filled('id_prioridad')) {
+            $query->where('id_prioridad', $request->input('id_prioridad'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('codigo_ticket', 'like', "%{$search}%")
+                  ->orWhere('asunto', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = min((int) $request->input('per_page', 15), 100);
+        $tickets = $query->orderByDesc('fecha_creacion')->paginate($perPage);
+
+        return ApiResponse::success(
+            data: [
+                'tickets' => TicketResource::collection($tickets->items()),
+                'meta' => [
+                    'current_page' => $tickets->currentPage(),
+                    'last_page' => $tickets->lastPage(),
+                    'per_page' => $tickets->perPage(),
+                    'total' => $tickets->total(),
+                ],
+            ],
+            message: 'Tickets filtrados correctamente.'
         );
     }
 

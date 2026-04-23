@@ -20,7 +20,7 @@ class StoreTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codigo_ticket' => ['required', 'string', 'max:255', 'unique:Tickets,codigo_ticket'],
+            'codigo_ticket' => ['sometimes', 'string', 'max:255', 'unique:Tickets,codigo_ticket'],
             'id_cliente' => ['required', 'integer', 'exists:clientes,id'],
             'id_tipo_ticket' => ['required', Rule::enum(TipoTicket::class)],
             'id_estado_ticket' => ['sometimes', Rule::enum(EstadoTicket::class)],

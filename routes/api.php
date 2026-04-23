@@ -67,6 +67,8 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
     Route::prefix('tickets')->group(function () {
         Route::get('/',        [TicketController::class, 'index'])->name('tickets.index');
         Route::get('/all',     [TicketController::class, 'indexAll'])->name('tickets.indexAll');
+        Route::get('/filter',  [TicketController::class, 'filter'])->name('tickets.filter');
+        Route::get('/cliente/{clienteId}', [TicketController::class, 'getByCliente'])->name('tickets.byCliente');
         Route::post('/',       [TicketController::class, 'store'])->name('tickets.store');
         Route::get('{id}',     [TicketController::class, 'show'])->name('tickets.show');
         Route::put('{id}',     [TicketController::class, 'update'])->name('tickets.update');
