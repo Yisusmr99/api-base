@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\Cliente\ClienteController;
 use App\Http\Controllers\Api\V1\Cuenta\CuentaController;
+use App\Http\Controllers\Api\V1\Ticket\TicketController;
 use App\Http\Controllers\Api\V1\Transaccion\TransaccionController;
 use App\Http\Controllers\Api\V1\TransferenciaExterna\TransferenciaExternaController;
 
@@ -65,6 +66,21 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::delete('{id}',  [CuentaController::class, 'destroy'])->name('cuentas.destroy');
     });
 
+    Route::prefix('tickets')->group(function () {
+        Route::get('/',        [TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/all',     [TicketController::class, 'indexAll'])->name('tickets.indexAll');
+        Route::get('/filter',  [TicketController::class, 'filter'])->name('tickets.filter');
+        Route::get('/cliente/{clienteId}', [TicketController::class, 'getByCliente'])->name('tickets.byCliente');
+        Route::post('/',       [TicketController::class, 'store'])->name('tickets.store');
+        Route::get('{id}',     [TicketController::class, 'show'])->name('tickets.show');
+        Route::put('{id}',     [TicketController::class, 'update'])->name('tickets.update');
+        Route::post('{id}/asignar', [TicketController::class, 'assign'])->name('tickets.assign');
+        Route::post('{id}/reasignar', [TicketController::class, 'reassign'])->name('tickets.reassign');
+        Route::patch('{id}/estado', [TicketController::class, 'changeStatus'])->name('tickets.changeStatus');
+        Route::post('{id}/cerrar', [TicketController::class, 'close'])->name('tickets.close');
+        Route::delete('{id}',  [TicketController::class, 'destroy'])->name('tickets.destroy');
+    });
+    
     Route::prefix('transacciones')->group(function () {
         Route::get('/',        [TransaccionController::class, 'index'])->name('transacciones.index');
         Route::get('/all',     [TransaccionController::class, 'indexAll'])->name('transacciones.indexAll');
