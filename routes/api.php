@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\Cliente\ClienteController;
 use App\Http\Controllers\Api\V1\Cuenta\CuentaController;
 use App\Http\Controllers\Api\V1\Ticket\TicketController;
+use App\Http\Controllers\Api\V1\Transaccion\TransaccionController;
+use App\Http\Controllers\Api\V1\TransferenciaExterna\TransferenciaExternaController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -78,4 +80,27 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::post('{id}/cerrar', [TicketController::class, 'close'])->name('tickets.close');
         Route::delete('{id}',  [TicketController::class, 'destroy'])->name('tickets.destroy');
     });
+    
+    Route::prefix('transacciones')->group(function () {
+        Route::get('/',        [TransaccionController::class, 'index'])->name('transacciones.index');
+        Route::get('/all',     [TransaccionController::class, 'indexAll'])->name('transacciones.indexAll');
+        Route::post('/',       [TransaccionController::class, 'store'])->name('transacciones.store');
+        Route::get('{id}',     [TransaccionController::class, 'show'])->name('transacciones.show');
+    });
+
+    Route::prefix('transferencias-externas')->group(function () {
+        Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
+        Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
+        Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
+    });
 });
+
+// Cuentas search — accesible por rol banco y admin (via permiso)
+Route::middleware(['auth:sanctum', 'throttle:api', 'permission:cuentas.search'])
+    ->get('/cuentas/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])
+    ->name('cuentas.search');
+
+// Transferencias externas POST — accesible por rol banco y admin (via permiso)
+Route::middleware(['auth:sanctum', 'throttle:api', 'permission:transferencias-externas.store'])
+    ->post('/transferencias-externas', [TransferenciaExternaController::class, 'store'])
+    ->name('transferencias-externas.store');

@@ -7,9 +7,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CuentaResource extends JsonResource
 {
+    protected $hiddenFields = [];
+
+    public function hide(array $fields): self
+    {
+        $this->hiddenFields = $fields;
+        return $this;
+    }
+
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'id_cliente' => $this->id_cliente,
             'numero_cuenta' => $this->numero_cuenta,
@@ -24,5 +32,11 @@ class CuentaResource extends JsonResource
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];
+
+        foreach ($this->hiddenFields as $field) {
+            unset($data[$field]);
+        }
+
+        return $data;
     }
 }

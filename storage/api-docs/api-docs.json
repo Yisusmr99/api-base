@@ -1,0 +1,545 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Derbancks",
+        "description": "API para registrar transferencias externas y buscar cuentas por número. Utiliza autenticación con token Sanctum y control de permisos basado en roles.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/v1",
+            "description": "API Version 1"
+        }
+    ],
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Iniciar sesión",
+                "description": "Autentica al usuario con email y contraseña. Retorna un token Sanctum para usar en endpoints protegidos.",
+                "operationId": "authLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login exitoso."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Admin"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "admin@example.com"
+                                                        },
+                                                        "estado": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "roles": {
+                                                            "type": "object"
+                                                        },
+                                                        "permissions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                        "updated_at": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123xyz..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Credenciales incorrectas."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error de validación."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cuentas/search/{numero_cuenta}": {
+            "get": {
+                "tags": [
+                    "Cuentas"
+                ],
+                "summary": "Buscar cuenta por número",
+                "description": "Retorna los datos de una cuenta dado su número. Requiere token Sanctum y el permiso `cuentas.search` (roles:banco).",
+                "operationId": "searchCuenta",
+                "parameters": [
+                    {
+                        "name": "numero_cuenta",
+                        "in": "path",
+                        "description": "Número de cuenta a buscar.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 100000001
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cuenta encontrada correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cuenta encontrada correctamente."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "id_cliente": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "numero_cuenta": {
+                                                    "type": "integer",
+                                                    "example": 100000001
+                                                },
+                                                "saldo": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1500
+                                                },
+                                                "saldo_disponible": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1500
+                                                },
+                                                "moneda": {
+                                                    "type": "string",
+                                                    "example": "Q"
+                                                },
+                                                "estado": {
+                                                    "type": "string",
+                                                    "example": "activa"
+                                                },
+                                                "cliente": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sin permiso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User does not have the right permissions."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cuenta no encontrada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cuenta no encontrada."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/transferencias-externas": {
+            "post": {
+                "tags": [
+                    "Transferencias Externas"
+                ],
+                "summary": "Registrar transferencia externa",
+                "description": "Crea una transferencia externa entrante (depósito desde banco externo) o saliente (retiro hacia banco externo). Requiere token Sanctum y el permiso `transferencias-externas.store` (roles: admin, banco).",
+                "operationId": "storeTransferenciaExterna",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tipo",
+                                    "moneda",
+                                    "monto",
+                                    "banco_externo",
+                                    "cuenta_externa",
+                                    "codigo_confirmacion"
+                                ],
+                                "properties": {
+                                    "tipo": {
+                                        "description": "Tipo de transferencia.",
+                                        "type": "string",
+                                        "example": "entrante",
+                                        "enum": [
+                                            "entrante",
+                                            "saliente"
+                                        ]
+                                    },
+                                    "moneda": {
+                                        "description": "Moneda del monto enviado.",
+                                        "type": "string",
+                                        "example": "Q",
+                                        "enum": [
+                                            "Q",
+                                            "$"
+                                        ]
+                                    },
+                                    "monto": {
+                                        "description": "Monto de la transferencia (mínimo 0.01).",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 500
+                                    },
+                                    "banco_externo": {
+                                        "type": "string",
+                                        "example": "Banco Industrial",
+                                        "maxLength": 255
+                                    },
+                                    "cuenta_externa": {
+                                        "type": "string",
+                                        "example": "1234567890",
+                                        "maxLength": 255
+                                    },
+                                    "codigo_confirmacion": {
+                                        "description": "Código único de confirmación.",
+                                        "type": "string",
+                                        "example": "TRX-2026-001",
+                                        "maxLength": 255
+                                    },
+                                    "id_cuenta_destino": {
+                                        "description": "Requerido cuando tipo=entrante. ID de la cuenta receptora.",
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true
+                                    },
+                                    "id_cuenta_origen": {
+                                        "description": "Requerido cuando tipo=saliente. ID de la cuenta emisora.",
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "referencia": {
+                                        "description": "Referencia opcional.",
+                                        "type": "string",
+                                        "example": "Pago de cuota",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transferencia externa registrada correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transferencia externa registrada correctamente."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "tipo": {
+                                                    "type": "string",
+                                                    "example": "entrante"
+                                                },
+                                                "banco_externo": {
+                                                    "type": "string",
+                                                    "example": "Banco Industrial"
+                                                },
+                                                "cuenta_externa": {
+                                                    "type": "string",
+                                                    "example": "1234567890"
+                                                },
+                                                "codigo_confirmacion": {
+                                                    "type": "string",
+                                                    "example": "TRX-2026-001"
+                                                },
+                                                "estado": {
+                                                    "type": "string",
+                                                    "example": "confirmada"
+                                                },
+                                                "fecha_envio": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "fecha_confirmacion": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "transaccion": {
+                                                    "type": "object"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado. Token inválido o ausente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sin permiso. El usuario no tiene rol banco ni admin.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User does not have the right permissions."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación o saldo insuficiente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Saldo insuficiente en la cuenta de origen."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "Token",
+                "description": "Ingresa el token Sanctum obtenido en el login."
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Cuentas",
+            "description": "Cuentas"
+        },
+        {
+            "name": "Transferencias Externas",
+            "description": "Transferencias Externas"
+        }
+    ]
+}

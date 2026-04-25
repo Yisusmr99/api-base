@@ -14,7 +14,7 @@ class ClienteController extends Controller
 {
     public function index(): JsonResponse
     {
-        $clientes = Cliente::paginate(15);
+        $clientes = Cliente::with('cuentas')->paginate(15);
 
         return ApiResponse::success(
             data: [
@@ -32,7 +32,7 @@ class ClienteController extends Controller
 
     public function indexAll(): JsonResponse
     {
-        $clientes = Cliente::get();
+        $clientes = Cliente::all();
 
         return ApiResponse::success(
             data: ClienteResource::collection($clientes),
@@ -42,7 +42,7 @@ class ClienteController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $cliente = Cliente::findOrFail($id);
+        $cliente = Cliente::with('cuentas')->findOrFail($id);
 
         return ApiResponse::success(
             data: new ClienteResource($cliente),

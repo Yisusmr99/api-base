@@ -15,6 +15,7 @@ class Cuentas extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'cuentas';
+    protected $hidden = ['saldo'];
 
     protected function casts(): array
     {
