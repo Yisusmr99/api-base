@@ -1,0 +1,43 @@
+name: 🚀 Deploy Laravel
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ejecutar deploy por SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/api-base
+
+            echo "Activando mantenimiento"
+            php artisan down || true
+
+            echo "Actualizando código"
+            git pull origin develop
+
+            echo "Instalando dependencias"
+            composer install --no-dev --optimize-autoloader
+
+            #echo "Migraciones"
+            #php artisan migrate --force
+
+            echo "Optimizando"
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            echo "Permisos"
+            chown -R www-data:www-data storage bootstrap/cache
+
+            echo "Activando app"
+            php artisan up
