@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\V1\Cuenta\CuentaController;
 use App\Http\Controllers\Api\V1\Ticket\TicketController;
 use App\Http\Controllers\Api\V1\Transaccion\TransaccionController;
 use App\Http\Controllers\Api\V1\TransferenciaExterna\TransferenciaExternaController;
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\V1\Reporte\ReporteController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -92,6 +94,30 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
         Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
         Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
         Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
+    });
+
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/summary',           [DashboardController::class, 'summary'])->name('dashboard.summary');
+    });
+
+    Route::prefix('reportes')->group(function () {
+        // Helper compartido (selector de clientes)
+        Route::get('/clientes',                       [ReporteController::class, 'clientesLista'])->name('reportes.clientes');
+
+        // 1. Estado de cuenta por cliente
+        Route::get('/estado-cuenta/{clienteId}',      [ReporteController::class, 'estadoCuenta'])->name('reportes.estadoCuenta');
+
+        // 2. Historial de transacciones
+        Route::get('/transacciones',                  [ReporteController::class, 'historialTransacciones'])->name('reportes.transacciones');
+
+        // 3. Listado de cuentas con saldos
+        Route::get('/cuentas',                        [ReporteController::class, 'listadoCuentas'])->name('reportes.cuentas');
+
+        // 4. Reporte de transferencias externas
+        Route::get('/transferencias-externas',        [ReporteController::class, 'transferenciasExternas'])->name('reportes.transferenciasExternas');
+
+        // 5. Reporte de actividad mensual
+        Route::get('/actividad-mensual',              [ReporteController::class, 'actividadMensual'])->name('reportes.actividadMensual');
     });
 });
 
