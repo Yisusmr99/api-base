@@ -114,6 +114,29 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        /*
+        |----------------------------------------------------------------------
+        | MongoDB (auditoría y snapshots)
+        |----------------------------------------------------------------------
+        | Conexión secundaria. Solo se usa para los modelos en App\Models\Mongo
+        | (AuditLog y TransaccionSnapshot). El resto de la app sigue en MySQL.
+        |
+        | Si MONGO_DSN está definido (Atlas o cadena completa), se usa tal cual.
+        | En otro caso se construye con host/port/usuario/contraseña.
+        */
+        'mongodb' => [
+            'driver'   => 'mongodb',
+            'dsn'      => env('MONGO_DSN'),
+            'host'     => env('MONGO_HOST', '127.0.0.1'),
+            'port'     => env('MONGO_PORT', 27017),
+            'database' => env('MONGO_DATABASE', 'erpti_audit'),
+            'username' => env('MONGO_USERNAME'),
+            'password' => env('MONGO_PASSWORD'),
+            'options'  => [
+                'authSource' => env('MONGO_AUTH_DATABASE', 'admin'),
+            ],
+        ],
+
     ],
 
     /*
