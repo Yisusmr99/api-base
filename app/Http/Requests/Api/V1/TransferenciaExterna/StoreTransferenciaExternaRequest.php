@@ -25,7 +25,7 @@ class StoreTransferenciaExternaRequest extends FormRequest
             'monto'               => ['required', 'numeric', 'min:0.01'],
             'banco_externo'       => ['required', 'string', 'max:255'],
             'cuenta_externa'      => ['required', 'string', 'max:255'],
-            'codigo_confirmacion' => ['required', 'string', 'max:255', 'unique:transferencias_externas,codigo_confirmacion'],
+            'codigo_confirmacion' => ['nullable', 'string', 'max:255', 'unique:transferencias_externas,codigo_confirmacion'],
             'id_cuenta_destino'   => [
                 Rule::requiredIf(fn () => $this->tipo === TipoTransferenciaExterna::Entrante->value),
                 'nullable',
