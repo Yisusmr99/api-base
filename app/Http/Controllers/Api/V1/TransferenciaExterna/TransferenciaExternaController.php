@@ -64,7 +64,7 @@ class TransferenciaExternaController extends Controller
      * @OA\Post(
      *     path="/transferencias-externas",
      *     summary="Registrar transferencia externa",
-     *     description="Crea una transferencia externa entrante (depósito desde banco externo) o saliente (retiro hacia banco externo). Requiere token Sanctum y el permiso `transferencias-externas.store` (roles: admin, banco).",
+     *     description="Crea una transferencia externa entrante (depósito desde banco externo).",
      *     operationId="storeTransferenciaExterna",
      *     tags={"Transferencias Externas"},
      *     security={{"sanctum":{}}},
@@ -73,22 +73,66 @@ class TransferenciaExternaController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"tipo","moneda","monto","banco_externo","cuenta_externa","codigo_confirmacion"},
-     *             @OA\Property(property="tipo",                type="string",  enum={"entrante","saliente"},  example="entrante",       description="Tipo de transferencia."),
+     *             @OA\Property(property="tipo",                type="string",  enum={"entrante"},             example="entrante",       description="Tipo de transferencia."),
      *             @OA\Property(property="moneda",              type="string",  enum={"Q","$"},                example="Q",              description="Moneda del monto enviado."),
      *             @OA\Property(property="monto",               type="number",  format="float",                example=500.00,           description="Monto de la transferencia (mínimo 0.01)."),
-     *             @OA\Property(property="banco_externo",       type="string",  maxLength=255,                 example="ExclusitBank"),
+     *             @OA\Property(property="banco_externo",       type="string",  maxLength=255,                 example="Banco Industrial"),
      *             @OA\Property(property="cuenta_externa",      type="string",  maxLength=255,                 example="1234567890"),
      *             @OA\Property(property="codigo_confirmacion", type="string",  maxLength=255,                 example="TRX-2026-001",   description="Código único de confirmación."),
      *             @OA\Property(property="id_cuenta_destino",   type="integer", nullable=true,                 example=3,                description="Requerido cuando tipo=entrante. ID de la cuenta receptora."),
-     *             @OA\Property(property="id_cuenta_origen",    type="integer", nullable=true,                 example=null,             description="Requerido cuando tipo=saliente. ID de la cuenta emisora."),
      *             @OA\Property(property="referencia",          type="string",  nullable=true,                 example="Pago de cuota",  description="Referencia opcional.")
      *         )
      *     ),
      *
-     *     @OA\Response(response=201, description="Transferencia externa registrada correctamente."),
-     *     @OA\Response(response=401, description="No autenticado."),
-     *     @OA\Response(response=403, description="Sin permiso."),
-     *     @OA\Response(response=422, description="Error de validación, saldo insuficiente o banco externo rechazó la operación.")
+     *     @OA\Response(
+     *         response=200,
+     *         description="Transferencia externa registrada correctamente.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=true),
+     *             @OA\Property(property="message", type="string",  example="Transferencia externa registrada correctamente."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id",                  type="integer", example=1),
+     *                 @OA\Property(property="tipo",                type="string",  example="entrante"),
+     *                 @OA\Property(property="banco_externo",       type="string",  example="Banco Industrial"),
+     *                 @OA\Property(property="cuenta_externa",      type="string",  example="1234567890"),
+     *                 @OA\Property(property="codigo_confirmacion", type="string",  example="TRX-2026-001"),
+     *                 @OA\Property(property="estado",              type="string",  example="confirmada"),
+     *                 @OA\Property(property="fecha_envio",         type="string",  format="date-time"),
+     *                 @OA\Property(property="fecha_confirmacion",  type="string",  format="date-time"),
+     *                 @OA\Property(property="transaccion",         type="object"),
+     *                 @OA\Property(property="created_at",          type="string",  format="date-time"),
+     *                 @OA\Property(property="updated_at",          type="string",  format="date-time")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado. Token inválido o ausente.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="Sin permiso. El usuario no tiene rol banco ni admin.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User does not have the right permissions.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación o saldo insuficiente.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=false),
+     *             @OA\Property(property="message", type="string",  example="Saldo insuficiente en la cuenta de origen."),
+     *             @OA\Property(property="errors",  type="object")
+     *         )
+     *     )
      * )
      */
     public function store(StoreTransferenciaExternaRequest $request): JsonResponse
