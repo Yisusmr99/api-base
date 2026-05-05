@@ -7,7 +7,8 @@
       "Bash(composer require *)",
       "Bash(composer show *)",
       "Bash(php -r 'require '\\\\''vendor/autoload.php'\\\\''; $a = new \\\\OpenApi\\\\Annotations\\\\Info\\(['\\\\''title'\\\\''=>'\\\\''test'\\\\'','\\\\''version'\\\\''=>'\\\\''1.0'\\\\'']\\); echo get_class\\($a\\);')",
-      "Bash(php -r ' *)"
+      "Bash(php -r ' *)",
+      "WebFetch(domain:exclousitbank-adminti.up.railway.app)"
     ]
   }
 }
