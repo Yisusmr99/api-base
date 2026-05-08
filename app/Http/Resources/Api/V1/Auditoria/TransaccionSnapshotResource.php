@@ -14,15 +14,15 @@ class TransaccionSnapshotResource extends JsonResource
         return [
             'id' => (string) $this->resource->getKey(),
             'transaccion_id_sql' => $this->transaccion_id_sql !== null ? (int) $this->transaccion_id_sql : null,
-            'motivo' => $this->motivo,
-            'tipo_transaccion' => $this->tipo_transaccion,
-            'estado' => $this->estado,
-            'moneda' => $this->moneda,
+            'motivo' => self::asUiString($this->motivo),
+            'tipo_transaccion' => self::asUiString($this->tipo_transaccion),
+            'estado' => self::asUiString($this->estado),
+            'moneda' => self::asUiString($this->moneda),
             'monto' => self::toNullableFloat($this->monto),
             'monto_convertido' => self::toNullableFloat($this->monto_convertido),
             'es_externa' => $this->es_externa,
-            'banco_externo' => $this->banco_externo,
-            'referencia' => $this->referencia,
+            'banco_externo' => self::asUiString($this->banco_externo),
+            'referencia' => self::asUiString($this->referencia),
             'cuenta_origen' => $this->cuenta_origen,
             'cuenta_destino' => $this->cuenta_destino,
             'registrado_por' => $this->registrado_por,
@@ -68,6 +68,26 @@ class TransaccionSnapshotResource extends JsonResource
         }
 
         return null;
+    }
+
+    /**
+     * Evita null en textos que suelen pintarse en tablas/badges (ej. estado.toUpperCase()).
+     */
+    private static function asUiString(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        if (is_object($value) && method_exists($value, '__toString')) {
+            return trim((string) $value);
+        }
+
+        return '';
     }
 
     private static function toNullableFloat(mixed $value): ?float
