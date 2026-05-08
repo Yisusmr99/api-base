@@ -30,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+
+            // Auditoría: registra requests autenticados en MongoDB.
+            'audit'      => \App\Http\Middleware\RegisterAuditLog::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

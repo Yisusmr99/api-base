@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Transaccion\TransaccionController;
 use App\Http\Controllers\Api\V1\TransferenciaExterna\TransferenciaExternaController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Reporte\ReporteController;
+use App\Http\Controllers\Api\V1\Auditoria\AuditoriaController;
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', RegisterController::class)->name('auth.register');
@@ -32,7 +33,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
 });
 
-Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin', 'audit'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/',        [ProfileController::class, 'index'])->name('users.index');
         Route::post('/',       [ProfileController::class, 'store'])->name('users.store');
@@ -118,6 +119,20 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin'])->group(functio
 
         // 5. Reporte de actividad mensual
         Route::get('/actividad-mensual',              [ReporteController::class, 'actividadMensual'])->name('reportes.actividadMensual');
+    });
+
+    // --------------------------------------------------------------------
+    // Auditoría (NoSQL - MongoDB)
+    //
+    // Bitácora de acciones del sistema y snapshots inmutables de
+    // transacciones. Solo lectura desde la API.
+    // --------------------------------------------------------------------
+    Route::prefix('auditoria')->group(function () {
+        Route::get('/',                  [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::get('/resumen',           [AuditoriaController::class, 'resumen'])->name('auditoria.resumen');
+        Route::get('/snapshots',         [AuditoriaController::class, 'snapshots'])->name('auditoria.snapshots');
+        Route::get('/snapshots/{id}',    [AuditoriaController::class, 'snapshotShow'])->name('auditoria.snapshots.show');
+        Route::get('/{id}',              [AuditoriaController::class, 'show'])->name('auditoria.show');
     });
 });
 
