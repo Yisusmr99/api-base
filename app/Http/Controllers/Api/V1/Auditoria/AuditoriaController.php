@@ -73,7 +73,9 @@ class AuditoriaController extends Controller
                 });
             }
 
-            $paginador = $query->orderByDesc('created_at')->paginate($perPage);
+            // Dirección numérica (-1 = desc en MongoDB): evita SortDirection de Laravel 13, que el
+            // codificador BSON no puede serializar en sort (en servidor suele coincidir lock distinto al local).
+            $paginador = $query->orderBy('created_at', -1)->paginate($perPage);
 
             return ApiResponse::success(
                 data: [
@@ -101,7 +103,7 @@ class AuditoriaController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $log = AuditLog::find($id);
+        $log = AuditLog::find($id, ['*']);
 
         if (! $log) {
             return ApiResponse::error(message: 'Registro de auditoría no encontrado.', status: 404);
@@ -234,7 +236,7 @@ class AuditoriaController extends Controller
                 $query->where('created_at', '<=', new \DateTime($filtros['hasta'] . ' 23:59:59'));
             }
 
-            $paginador = $query->orderByDesc('created_at')->paginate($perPage);
+            $paginador = $query->orderBy('created_at', -1)->paginate($perPage);
 
             return ApiResponse::success(
                 data: [
@@ -262,7 +264,7 @@ class AuditoriaController extends Controller
      */
     public function snapshotShow(string $id): JsonResponse
     {
-        $snapshot = TransaccionSnapshot::find($id);
+        $snapshot = TransaccionSnapshot::find($id, ['*']);
 
         if (! $snapshot) {
             return ApiResponse::error(message: 'Snapshot no encontrado.', status: 404);
