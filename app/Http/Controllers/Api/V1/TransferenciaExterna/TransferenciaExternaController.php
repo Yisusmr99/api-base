@@ -263,7 +263,7 @@ class TransferenciaExternaController extends Controller
         // 3. Ejecutar la transferencia en el banco externo
         try {
             $bankService->enviarTransferencia(
-                referencia:            "TRX-{$data['banco_externo']}-{$transaccion->id}}",
+                referencia:            "TRX-{$data['banco_externo']}-{$transaccion->id}",
                 numeroCuentaDestino:   $data['cuenta_externa'],
                 monto:                 $montoGTQ,
                 descripcion:           $data['referencia'] ?? null
