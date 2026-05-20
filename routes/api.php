@@ -33,6 +33,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
 });
 
+// Grupo 1: Solo admin — gestión de usuarios, roles y auditoría
 Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin', 'audit'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/',        [ProfileController::class, 'index'])->name('users.index');
@@ -51,6 +52,49 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin', 'audit'])->grou
         Route::delete('{id}',  [RoleController::class, 'destroy'])->name('roles.destroy');
     });
 
+    Route::prefix('auditoria')->group(function () {
+        Route::get('/',                  [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::get('/resumen',           [AuditoriaController::class, 'resumen'])->name('auditoria.resumen');
+        Route::get('/snapshots',         [AuditoriaController::class, 'snapshots'])->name('auditoria.snapshots');
+        Route::get('/snapshots/{id}',    [AuditoriaController::class, 'snapshotShow'])->name('auditoria.snapshots.show');
+        Route::get('/{id}',              [AuditoriaController::class, 'show'])->name('auditoria.show');
+    });
+});
+
+// Grupo 2: Admin y gerente — dashboard, reportes y consulta de transferencias externas
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente', 'audit'])->group(function () {
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/summary', [DashboardController::class, 'summary'])->name('dashboard.summary');
+    });
+
+    Route::prefix('reportes')->group(function () {
+        Route::get('/clientes',                       [ReporteController::class, 'clientesLista'])->name('reportes.clientes');
+        Route::get('/estado-cuenta/{clienteId}',      [ReporteController::class, 'estadoCuenta'])->name('reportes.estadoCuenta');
+        Route::get('/transacciones',                  [ReporteController::class, 'historialTransacciones'])->name('reportes.transacciones');
+        Route::get('/cuentas',                        [ReporteController::class, 'listadoCuentas'])->name('reportes.cuentas');
+        Route::get('/transferencias-externas',        [ReporteController::class, 'transferenciasExternas'])->name('reportes.transferenciasExternas');
+        Route::get('/actividad-mensual',              [ReporteController::class, 'actividadMensual'])->name('reportes.actividadMensual');
+    });
+
+    Route::prefix('transferencias-externas')->group(function () {
+        Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
+        Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
+        Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
+    });
+});
+
+// Grupo 3: Admin, gerente y cajero — transacciones
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|cajero', 'audit'])->group(function () {
+    Route::prefix('transacciones')->group(function () {
+        Route::get('/',        [TransaccionController::class, 'index'])->name('transacciones.index');
+        Route::get('/all',     [TransaccionController::class, 'indexAll'])->name('transacciones.indexAll');
+        Route::post('/',       [TransaccionController::class, 'store'])->name('transacciones.store');
+        Route::get('{id}',     [TransaccionController::class, 'show'])->name('transacciones.show');
+    });
+});
+
+// Grupo 4: Admin, gerente y servicio_al_cliente — clientes, cuentas y tickets
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_al_cliente', 'audit'])->group(function () {
     Route::prefix('clientes')->group(function () {
         Route::get('/',        [ClienteController::class, 'index'])->name('clientes.index');
         Route::get('/all',     [ClienteController::class, 'indexAll'])->name('clientes.indexAll');
@@ -82,57 +126,6 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin', 'audit'])->grou
         Route::patch('{id}/estado', [TicketController::class, 'changeStatus'])->name('tickets.changeStatus');
         Route::post('{id}/cerrar', [TicketController::class, 'close'])->name('tickets.close');
         Route::delete('{id}',  [TicketController::class, 'destroy'])->name('tickets.destroy');
-    });
-    
-    Route::prefix('transacciones')->group(function () {
-        Route::get('/',        [TransaccionController::class, 'index'])->name('transacciones.index');
-        Route::get('/all',     [TransaccionController::class, 'indexAll'])->name('transacciones.indexAll');
-        Route::post('/',       [TransaccionController::class, 'store'])->name('transacciones.store');
-        Route::get('{id}',     [TransaccionController::class, 'show'])->name('transacciones.show');
-    });
-
-    Route::prefix('transferencias-externas')->group(function () {
-        Route::get('/',        [TransferenciaExternaController::class, 'index'])->name('transferencias-externas.index');
-        Route::get('/all',     [TransferenciaExternaController::class, 'indexAll'])->name('transferencias-externas.indexAll');
-        Route::get('{id}',     [TransferenciaExternaController::class, 'show'])->name('transferencias-externas.show');
-    });
-
-    Route::prefix('dashboard')->group(function () {
-        Route::get('/summary',           [DashboardController::class, 'summary'])->name('dashboard.summary');
-    });
-
-    Route::prefix('reportes')->group(function () {
-        // Helper compartido (selector de clientes)
-        Route::get('/clientes',                       [ReporteController::class, 'clientesLista'])->name('reportes.clientes');
-
-        // 1. Estado de cuenta por cliente
-        Route::get('/estado-cuenta/{clienteId}',      [ReporteController::class, 'estadoCuenta'])->name('reportes.estadoCuenta');
-
-        // 2. Historial de transacciones
-        Route::get('/transacciones',                  [ReporteController::class, 'historialTransacciones'])->name('reportes.transacciones');
-
-        // 3. Listado de cuentas con saldos
-        Route::get('/cuentas',                        [ReporteController::class, 'listadoCuentas'])->name('reportes.cuentas');
-
-        // 4. Reporte de transferencias externas
-        Route::get('/transferencias-externas',        [ReporteController::class, 'transferenciasExternas'])->name('reportes.transferenciasExternas');
-
-        // 5. Reporte de actividad mensual
-        Route::get('/actividad-mensual',              [ReporteController::class, 'actividadMensual'])->name('reportes.actividadMensual');
-    });
-
-    // --------------------------------------------------------------------
-    // Auditoría (NoSQL - MongoDB)
-    //
-    // Bitácora de acciones del sistema y snapshots inmutables de
-    // transacciones. Solo lectura desde la API.
-    // --------------------------------------------------------------------
-    Route::prefix('auditoria')->group(function () {
-        Route::get('/',                  [AuditoriaController::class, 'index'])->name('auditoria.index');
-        Route::get('/resumen',           [AuditoriaController::class, 'resumen'])->name('auditoria.resumen');
-        Route::get('/snapshots',         [AuditoriaController::class, 'snapshots'])->name('auditoria.snapshots');
-        Route::get('/snapshots/{id}',    [AuditoriaController::class, 'snapshotShow'])->name('auditoria.snapshots.show');
-        Route::get('/{id}',              [AuditoriaController::class, 'show'])->name('auditoria.show');
     });
 });
 
