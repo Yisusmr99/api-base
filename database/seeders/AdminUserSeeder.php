@@ -22,8 +22,36 @@ class AdminUserSeeder extends Seeder
                 'estado' => true,
             ]
         );
-
-        // Asignar el rol admin
         $adminUser->assignRole('admin');
+
+        $gerente = User::firstOrCreate(
+            ['email' => 'gerente@derbanks.com'],
+            [
+                'name' => 'Gerente',
+                'password' => Hash::make('Admin123.'),
+                'estado' => true,
+            ]
+        );
+        $gerente->assignRole('gerente');
+
+        $servicioCliente = User::firstOrCreate(
+            ['email' => 'servicio_cliente@derbanks.com'],
+            [
+                'name' => 'Servicio al Cliente',
+                'password' => Hash::make('Admin123.'),
+                'estado' => true,
+            ]
+        );
+        $servicioCliente->assignRole('servicio_al_cliente');
+
+        $cajero = User::firstOrCreate(
+            ['email' => 'cajero@derbanks.com'],
+            [
+                'name' => 'Cajero',
+                'password' => Hash::make('Admin123.'),
+                'estado' => true,
+            ]
+        );
+        $cajero->assignRole('cajero');
     }
 }
