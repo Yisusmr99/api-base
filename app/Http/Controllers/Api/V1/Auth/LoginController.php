@@ -73,14 +73,28 @@ class LoginController extends Controller
      *             @OA\Property(property="errors",  type="object")
      *         )
      *     )
-     * )
+     *      @OA\Response(
+     *         response=403,
+     *         description="Usuario inactivo.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status",  type="boolean", example=false),
+     *             @OA\Property(property="message", type="string",  example="Usuario inactivo. Contacta al administrador.")
+     *         )
+     *     )
      */
     public function __invoke(LoginRequest $request): JsonResponse
     {
-        if (! Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return ApiResponse::error(
                 message: 'Credenciales incorrectas.',
                 status: 401
+            );
+        }
+
+        if (!Auth::user()->estado) {
+            return ApiResponse::error(
+                message: 'Usuario inactivo. Contacta al administrador.',
+                status: 403
             );
         }
 

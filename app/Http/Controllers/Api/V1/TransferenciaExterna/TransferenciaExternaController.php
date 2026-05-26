@@ -167,6 +167,11 @@ class TransferenciaExternaController extends Controller
 
         return DB::transaction(function () use ($data, $monto, $moneda, $tipoCambio, $now) {
             $cuenta          = Cuentas::lockForUpdate()->findOrFail($data['id_cuenta_destino']);
+
+            if (! $cuenta->estado) {
+                throw new \DomainException('La cuenta de destino está inactiva.');
+            }
+
             $montoConvertido = $this->convertirMonto($monto, $moneda, $cuenta->moneda, $tipoCambio);
 
             $transaccion = Transaccion::create([
@@ -218,6 +223,11 @@ class TransferenciaExternaController extends Controller
         [$transaccion, $transferenciaExterna, $cuenta, $montoConvertido, $montoGTQ] =
             DB::transaction(function () use ($data, $monto, $moneda, $tipoCambio, $now) {
                 $cuenta          = Cuentas::lockForUpdate()->findOrFail($data['id_cuenta_origen']);
+
+                if (! $cuenta->estado) {
+                    throw new \DomainException('La cuenta de origen está inactiva.');
+                }
+
                 $montoConvertido = $this->convertirMonto($monto, $moneda, $cuenta->moneda, $tipoCambio);
 
                 if ((float) $cuenta->saldo < $montoConvertido) {

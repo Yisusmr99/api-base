@@ -69,6 +69,14 @@ class TransaccionController extends Controller
                     ? Cuentas::lockForUpdate()->findOrFail($data['id_cuenta_destino'])
                     : null;
 
+                if ($cuentaOrigen && ! $cuentaOrigen->estado) {
+                    throw new \DomainException('La cuenta de origen está inactiva.');
+                }
+
+                if ($cuentaDestino && ! $cuentaDestino->estado) {
+                    throw new \DomainException('La cuenta de destino está inactiva.');
+                }
+
                 $monedaTransaccion = Moneda::from($data['moneda']);
                 $tipoCambio        = (float) env('TIPO_CAMBIO_USD_GTQ', 7.65);
 
