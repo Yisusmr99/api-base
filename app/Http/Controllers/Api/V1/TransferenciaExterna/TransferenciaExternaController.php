@@ -276,7 +276,8 @@ class TransferenciaExternaController extends Controller
                 referencia:            "TRX-{$data['banco_externo']}-{$transaccion->id}",
                 numeroCuentaDestino:   $data['cuenta_externa'],
                 monto:                 $montoGTQ,
-                descripcion:           $data['referencia'] ?? null
+                descripcion:           $data['referencia'] ?? null,
+                cuentaOrigen:          $cuenta->numero_cuenta
             );
 
             $transaccion->update(['estado' => EstadoTransaccion::Completada->value]);
