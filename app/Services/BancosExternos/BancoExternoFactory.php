@@ -4,6 +4,7 @@ namespace App\Services\BancosExternos;
 
 use App\Services\BancosExternos\Contracts\BancoExternoContract;
 use InvalidArgumentException;
+use App\Services\BancosExternos\UrbankService;
 
 /**
  * =============================================================================
@@ -69,6 +70,8 @@ class BancoExternoFactory
         'exclousitbank'  => ExclusitBankService::class,
         'exclousit bank' => ExclusitBankService::class,
         'exclousit'      => ExclusitBankService::class,
+        'urbank'         => UrbankService::class,
+        'ur bank'        => UrbankService::class,
     ];
 
     public static function make(string $bancoNombre): BancoExternoContract
@@ -84,6 +87,10 @@ class BancoExternoFactory
             ExclusitBankService::class => new ExclusitBankService(
                 baseUrl: env('BASE_URL_EXCLOUSIT'),
                 apiKey:  env('API_KEY_EXCLOUSIT')
+            ),
+            UrbankService::class => new UrbankService(
+                baseUrl:        env('BASE_URL_URBANK'),
+                idBancoOrigen:  (int) env('URBANK_ID_BANCO_ORIGEN', 1)
             ),
             default => throw new InvalidArgumentException("Sin configuración para: {$bancoNombre}"),
         };
