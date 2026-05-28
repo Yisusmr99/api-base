@@ -49,7 +49,7 @@ class ExclusitBankService implements BancoExternoContract
         }
 
         if ($cuentaOrigen !== null) {
-            $payload['cuenta_origen'] = $cuentaOrigen;
+            $payload['numero_cuenta_origen'] = $cuentaOrigen;
         }
 
         $response = Http::withHeaders(['X-API-Key' => $this->apiKey])
