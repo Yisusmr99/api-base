@@ -28,7 +28,8 @@ class UrbankService implements BancoExternoContract
         string  $referencia,
         string  $numeroCuentaDestino,
         float   $monto,
-        ?string $descripcion = null
+        ?string $descripcion = null,
+        ?string $cuentaOrigen = null
     ): array {
         $cuenta = $this->buscarCuenta($numeroCuentaDestino);
 
@@ -40,7 +41,7 @@ class UrbankService implements BancoExternoContract
             'id_cuenta_destino'         => $cuenta['id_cuenta'],
             'monto'                     => $monto,
             'id_banco_origen'           => $this->idBancoOrigen,
-            'cuenta_origen_externa'     => $referencia,
+            'cuenta_origen_externa'     => $cuentaOrigen,
             'codigo_referencia_externa' => $referencia,
         ];
 

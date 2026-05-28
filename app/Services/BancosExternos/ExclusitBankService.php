@@ -35,7 +35,8 @@ class ExclusitBankService implements BancoExternoContract
         string $referencia,
         string $numeroCuentaDestino,
         float $monto,
-        ?string $descripcion = null
+        ?string $descripcion = null,
+        ?string $cuentaOrigen = null
     ): array {
         $payload = [
             'referencia'            => $referencia,
@@ -45,6 +46,10 @@ class ExclusitBankService implements BancoExternoContract
 
         if ($descripcion !== null) {
             $payload['descripcion'] = $descripcion;
+        }
+
+        if ($cuentaOrigen !== null) {
+            $payload['cuenta_origen'] = $cuentaOrigen;
         }
 
         $response = Http::withHeaders(['X-API-Key' => $this->apiKey])
