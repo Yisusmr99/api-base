@@ -16,7 +16,7 @@ class UrbankService implements BancoExternoContract
     public function verificarCuenta(string $numeroCuenta): array
     {
         $cuenta = $this->buscarCuenta($numeroCuenta);
-
+        \Log::info("URBANK - Buscar cuenta destino: {$numeroCuenta}", ['cuenta' => $cuenta]);
         if ($cuenta === null) {
             throw new RuntimeException("Cuenta {$numeroCuenta} no encontrada en URBANK.");
         }
@@ -47,11 +47,13 @@ class UrbankService implements BancoExternoContract
         $response = Http::post("{$this->baseUrl}/transacciones/transferencia-entrante", $payload);
 
         if ($response->serverError()) {
+            \Log::error("URBANK - Error en la transferencia:", ['payload' => $payload]);
             throw new RuntimeException('URBANK no disponible al procesar la transferencia.');
         }
 
         if (!$response->successful()) {
             $data = $response->json();
+            \Log::warning("URBANK - Transferencia rechazada:", ['payload' => $payload, 'response' => $data]);
             throw new RuntimeException($data['message'] ?? $data['error'] ?? 'Transferencia rechazada por URBANK.');
         }
 
@@ -67,6 +69,7 @@ class UrbankService implements BancoExternoContract
         }
 
         $body = $response->json();
+        \Log::info("URBANK - Cuentas disponibles:", ['cuentas' => $body]);
         $lista = $body['cuentas'] ?? $body['data'] ?? [];
 
         return collect($lista)->first(

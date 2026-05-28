@@ -90,7 +90,7 @@ class BancoExternoFactory
             ),
             UrbankService::class => new UrbankService(
                 baseUrl:        env('BASE_URL_URBANK'),
-                idBancoOrigen:  (int) env('URBANK_ID_BANCO_ORIGEN', 1)
+                idBancoOrigen:  (int) env('URBANK_ID_BANCO_ORIGEN', 5)
             ),
             default => throw new InvalidArgumentException("Sin configuración para: {$bancoNombre}"),
         };
