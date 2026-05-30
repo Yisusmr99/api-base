@@ -130,7 +130,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_
 });
 
 // Cuentas search — accesible por rol banco y admin (via permiso)
-Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_al_cliente|cajero'])
+Route::middleware(['auth:sanctum', 'throttle:api'])
     ->get('/cuentas/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])
     ->name('cuentas.search');
 
