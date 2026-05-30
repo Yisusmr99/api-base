@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 });
 
 // Grupo 1: Solo admin — gestión de usuarios, roles y auditoría
-Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin', 'audit'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin,gerente,servicio_al_cliente,cajero', 'audit'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/',        [ProfileController::class, 'index'])->name('users.index');
         Route::post('/',       [ProfileController::class, 'store'])->name('users.store');
@@ -130,7 +130,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_
 });
 
 // Cuentas search — accesible por rol banco y admin (via permiso)
-Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_al_cliente|cajero', 'permission:cuentas.search'])
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_al_cliente|cajero'])
     ->get('/cuentas/search/{numero_cuenta}', [CuentaController::class, 'searchAccount'])
     ->name('cuentas.search');
 
