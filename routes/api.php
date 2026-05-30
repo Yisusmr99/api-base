@@ -135,6 +135,6 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_
     ->name('cuentas.search');
 
 // Transferencias externas POST — accesible por rol banco y admin (via permiso)
-Route::middleware(['auth:sanctum', 'throttle:api', 'permission:transferencias-externas.store'])
+Route::middleware(['auth:sanctum', 'throttle:api'])
     ->post('/transferencias-externas', [TransferenciaExternaController::class, 'store'])
     ->name('transferencias-externas.store');
