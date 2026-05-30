@@ -35,19 +35,15 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->syncPermissions($permissions);
 
-        // Crear rol cajero (acceso solo a transacciones, sin permisos especiales)
         $cajero = Role::firstOrCreate(['name' => 'cajero']);
         $cajero->syncPermissions($permissions);
 
-        // Crear rol servicio_al_cliente (acceso a clientes, cuentas y tickets)
         $servicioAlCliente = Role::firstOrCreate(['name' => 'servicio_al_cliente']);
         $servicioAlCliente->syncPermissions($permissions);
 
-        // Crear rol gerente (acceso a todo menos administración)
         $gerente = Role::firstOrCreate(['name' => 'gerente']);
         $gerente->syncPermissions($permissions);
 
-        // Crear rol banco con permiso para registrar transferencias externas
         $banco = Role::firstOrCreate(['name' => 'banco']);
         $banco->syncPermissions($permissions);
     }
