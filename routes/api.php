@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 });
 
 // Grupo 1: Solo admin — gestión de usuarios, roles y auditoría
-Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin,gerente,servicio_al_cliente,cajero', 'audit'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api', 'role:admin|gerente|servicio_al_cliente|cajero', 'audit'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/',        [ProfileController::class, 'index'])->name('users.index');
         Route::post('/',       [ProfileController::class, 'store'])->name('users.store');
